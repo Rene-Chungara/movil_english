@@ -1,4 +1,4 @@
-import '../models/user_model.dart';
+import 'package:flutter_english/models/user_model.dart';
 
 class HomeController {
   // Simulación de una llamada de red asíncrona para obtener datos de usuario
