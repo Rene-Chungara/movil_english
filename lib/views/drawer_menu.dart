@@ -24,14 +24,17 @@ class DrawerMenu extends StatelessWidget {
           padding: EdgeInsets.zero,
           children: [
             _buildDrawerHeader(context),
-            _buildDrawerItem(context, FontAwesomeIcons.house, 'Inicio'),
             _buildDrawerItem(
-                context, FontAwesomeIcons.bookOpen, 'Mis Lecciones'),
+                context, FontAwesomeIcons.house, 'Inicio', '/home'),
+            _buildDrawerItem(context, FontAwesomeIcons.bookOpen,
+                'Mis Lecciones', '/lessons'),
+            _buildDrawerItem(context, FontAwesomeIcons.rectangleList,
+                'Vocabulario', '/vocabulary'),
             _buildDrawerItem(
-                context, FontAwesomeIcons.rectangleList, 'Vocabulario'),
-            _buildDrawerItem(context, FontAwesomeIcons.puzzlePiece, 'Exámenes'),
+                context, FontAwesomeIcons.puzzlePiece, 'Exámenes', '/speech'),
             const Divider(),
-            _buildDrawerItem(context, FontAwesomeIcons.gear, 'Configuración'),
+            _buildDrawerItem(
+                context, FontAwesomeIcons.gear, 'Configuración', '/settings'),
           ],
         ),
       ),
@@ -84,7 +87,8 @@ class DrawerMenu extends StatelessWidget {
   }
 
   // Método para construir elementos del Drawer con animación
-  Widget _buildDrawerItem(BuildContext context, IconData icon, String title) {
+  Widget _buildDrawerItem(
+      BuildContext context, IconData icon, String title, String route) {
     return ListTile(
       leading: FaIcon(icon, color: Colors.white),
       title: Text(
@@ -93,12 +97,7 @@ class DrawerMenu extends StatelessWidget {
       ),
       onTap: () {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$title seleccionado'),
-            duration: const Duration(milliseconds: 500),
-          ),
-        );
+        Navigator.pushNamed(context, route);
       },
       hoverColor: Colors.blueAccent.withOpacity(0.2),
       tileColor: Colors.transparent,
