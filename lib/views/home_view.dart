@@ -8,6 +8,7 @@ import 'package:flutter_english/views/drawer_menu.dart';
 
 import 'package:flutter_english/views/Speech_to_text.dart';
 import 'package:flutter_english/views/home_page.dart';
+import '../views/leccion_screen.dart';
 
 class HomeView extends StatelessWidget {
   final HomeController controller = HomeController();
@@ -201,7 +202,7 @@ class HomeView extends StatelessWidget {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => HomePage()));
+                                    builder: (context) => LeccionScreen()));
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.orangeAccent,

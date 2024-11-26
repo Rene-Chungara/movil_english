@@ -1,83 +1,97 @@
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
-class SpeechToTextView extends StatefulWidget {
+class Speech1 extends StatefulWidget {
+  const Speech1({super.key});
+
   @override
-  _SpeechToTextViewState createState() => _SpeechToTextViewState();
+  State<Speech1> createState() => _Speech1State();
 }
 
-class _SpeechToTextViewState extends State<SpeechToTextView> {
-  // Instancia de SpeechToText
-  SpeechToText _speechToText = SpeechToText();
-  bool _speechEnabled = false; // Indicador si el reconocimiento está habilitado
-  String _lastWords = ''; // Últimas palabras reconocidas
+class _Speech1State extends State<Speech1> {
+  final SpeechToText _speechToText = SpeechToText();
+  bool _speechEnabled = false;
+  bool _isListening = false;
+  String _recognizedText = "";
 
   @override
   void initState() {
     super.initState();
-    _initSpeech();
+    _initializeSpeech();
   }
 
-  // Inicializa el reconocimiento de voz
-  void _initSpeech() async {
+  void _initializeSpeech() async {
     _speechEnabled = await _speechToText.initialize();
-    setState(() {}); // Actualiza el estado después de la inicialización
-  }
-
-  // Inicia la escucha del reconocimiento de voz
-  void _startListening() async {
-    await _speechToText.listen(onResult: (result) {
-      setState(() {
-        _lastWords = result.recognizedWords; // Actualiza las palabras reconocidas
-      });
-    });
     setState(() {});
   }
 
-  // Detiene la escucha del reconocimiento de voz
+  void _startListening() async {
+    if (_speechEnabled) {
+      setState(() {
+        _isListening = true;
+        _recognizedText = ""; // Reiniciar texto al comenzar a escuchar
+      });
+      await _speechToText.listen(onResult: _onSpeechResult);
+    }
+  }
+
   void _stopListening() async {
     await _speechToText.stop();
-    setState(() {});
+    setState(() {
+      _isListening = false;
+    });
+  }
+
+  void _onSpeechResult(result) {
+    setState(() {
+      _recognizedText = result.recognizedWords;
+    });
+
+    // Llamar la función personalizada con el texto reconocido
+    theFunction(_recognizedText);
+  }
+
+  void theFunction(String salidaString) {
+    // Ejemplo de uso: El texto se guarda en una variable y ya está visible en pantalla
+    print("Texto reconocido: $salidaString");
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Speech to Text Demo'),
+        title: const Text('Speech Demo'),
+        backgroundColor: Colors.red,
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              padding: EdgeInsets.all(16),
-              child: Text(
-                'Recognized words:',
-                style: TextStyle(fontSize: 20.0),
-              ),
+          children: [
+            Text(
+              _isListening
+                  ? "Escuchando..."
+                  : _speechEnabled
+                      ? "Presiona el micrófono para empezar a hablar"
+                      : "Reconocimiento de voz no disponible",
+              style: const TextStyle(fontSize: 18.0),
+              textAlign: TextAlign.center,
             ),
-            Expanded(
-              child: Container(
-                padding: EdgeInsets.all(16),
-                child: Text(
-                  // Si se está escuchando, muestra las palabras reconocidas
-                  _speechToText.isListening
-                      ? '$_lastWords'
-                      // Si no se está escuchando pero el reconocimiento está disponible, muestra mensaje
-                      : _speechEnabled
-                          ? 'Tap the microphone to start listening...'
-                          : 'Speech not available',
-                ),
-              ),
+            const SizedBox(height: 20),
+            Text(
+              _recognizedText.isEmpty
+                  ? "Aquí aparecerá lo que digas"
+                  : _recognizedText,
+              style: const TextStyle(fontSize: 22.0, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _speechToText.isNotListening ? _startListening : _stopListening,
-        tooltip: 'Listen',
-        child: Icon(_speechToText.isNotListening ? Icons.mic_off : Icons.mic),
+        onPressed: _isListening ? _stopListening : _startListening,
+        tooltip: 'Escuchar',
+        backgroundColor: Colors.red,
+        child: Icon(_isListening ? Icons.stop : Icons.mic),
       ),
     );
   }
