@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class SpeechToTextView extends StatefulWidget {
+  const SpeechToTextView({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<SpeechToTextView> createState() => _SpeechToTextViewState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _SpeechToTextViewState extends State<SpeechToTextView> {
   final SpeechToText _speechToText = SpeechToText();
   bool _speechEnabled = false;
   String _wordSpoken = "";

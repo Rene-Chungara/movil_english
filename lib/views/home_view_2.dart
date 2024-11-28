@@ -1,27 +1,44 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:flutter_english/controllers/home_controllers.dart';
-import 'package:flutter_english/models/user_model.dart';
-import 'package:flutter_english/views/drawer_menu.dart';
-//import '../views/ejercicio/ejercicio_x_pregunta_2.dart';
-//import '../views/ejercicio/ejercicio_x_pregunta_3.dart';
-import '../views/leccion_view.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../others/imports.dart';
 
+class HomeView2 extends StatefulWidget {
+  final String token;
+  HomeView2({required this.token});
 
-class HomeView extends StatelessWidget {
+  @override
+  State<HomeView2> createState() => _HomeView2State();
+}
+
+class _HomeView2State extends State<HomeView2> {
   final HomeController controller = HomeController();
-  
-  HomeView({super.key});
-
-
-  Future<String?> getToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('auth_token'); // Cambia 'auth_token' por el nombre clave que usaste.
+  final ApiService _apiService = ApiService();
+  //List<dynamic> niveles = [];
+  List<Map<String, String>> niveles = [
+    {'nombre': 'Básico', 'descripcion': 'Nivel inicial'},
+    {'nombre': 'Intermedio', 'descripcion': 'Mayor dificultad'},
+    {'nombre': 'Avanzado', 'descripcion': 'Nivel experto'},
+  ];
+  bool showDetails =
+      false; // Controlador para mostrar u ocultar la lista de detalles
+  List<Map<String, String>> nivelDetalles = [
+    {'titulo': 'Lección 1', 'descripcion': 'Introducción a la gramática'},
+    {'titulo': 'Lección 2', 'descripcion': 'Tiempos verbales en presente'},
+    {'titulo': 'Lección 3', 'descripcion': 'Vocabulario esencial'},
+  ];
+  Map<String, String> selectedDetails = {};
+  @override
+  void initState() {
+    super.initState();
+    _fetchNiveles();
   }
-  
+
+  // Método para obtener los niveles desde la API
+  void _fetchNiveles() async {
+    // final data = await _apiService.getNiveles(widget.token);
+    // setState(() {
+    //   niveles = data;
+    // });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -183,6 +200,64 @@ class HomeView extends StatelessWidget {
                         ],
                       ),
 
+// Código de niveles
+                      niveles.isNotEmpty
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Niveles Disponibles',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white),
+                                ),
+                                const SizedBox(height: 10),
+                                ...niveles.map((nivel) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 5.0),
+                                    child: SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          // Mostrar el popup al presionar el botón
+                                          _showNivelPopup(context, nivel);
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 20),
+                                          backgroundColor:
+                                              Colors.white.withOpacity(0.6),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          elevation: 5,
+                                        ),
+                                        child: Text(
+                                          nivel['nombre'] ?? 'Sin nombre',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                const SizedBox(height: 30),
+                              ],
+                            )
+                          : const Center(
+                              child: Text(
+                                'Cargando niveles...',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+
+                      //+++++++++++++++++++++++++++++++++++++++
                       // Llamada a la acción para continuar la lección con diseño llamativo
                       const SizedBox(height: 30),
                       Center(
@@ -206,11 +281,10 @@ class HomeView extends StatelessWidget {
                       Center(
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        LeccionView()));
+                            // Navigator.push(
+                            //     context,
+                            //     MaterialPageRoute(
+                            //         builder: (context) => LeccionView()));
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.orangeAccent,
@@ -273,6 +347,67 @@ class HomeView extends StatelessWidget {
       ),
     );
   }
+
+// Función para mostrar los detalles del nivel
+  void _showNivelDetails(Map<String, String> nivel) {
+    // Esto puede abrir una nueva lista de datos (vacía por ahora)
+    // Para ahora solo se muestra un mensaje en consola
+    print('Nivel seleccionado: ${nivel['nombre']}');
+    // Puedes crear una función que despliegue más información o actualice el estado para mostrar una lista debajo.
+  }
+
+  // Función para mostrar el popup
+  void _showNivelPopup(BuildContext context, Map<String, String> nivel) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        backgroundColor: Colors.blueAccent.withOpacity(0.9), // Fondo con azul
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15), // Bordes redondeados
+        ),
+        title: Text(
+          nivel['nombre'] ?? 'Sin nombre',
+          style: GoogleFonts.poppins(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        content: SingleChildScrollView(
+          child: ListBody(
+            children: [
+              Text(
+                nivel['descripcion'] ?? 'Sin descripción',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: Colors.white70,
+                ),
+              ),
+              const SizedBox(height: 10),
+              // Aquí puedes agregar más detalles si es necesario
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Cierra el popup
+            },
+            child: Text(
+              'Cerrar',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
 
   // Método para construir botones de acción rápida con diseño amigable
   Widget _buildActionButton(IconData icon, String label) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'views/home_view.dart';
+import 'views/login.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomeView(), // Usamos la vista HomeView como pantalla inicial
+      home: LoginScreen(), // Usamos la vista HomeView como pantalla inicial
     );
   }
 }
