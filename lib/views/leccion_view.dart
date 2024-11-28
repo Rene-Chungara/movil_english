@@ -1,50 +1,51 @@
-import 'package:flutter/material.dart';
-import '../models/leccion.dart';
-//import '../services/leccion_services.dart';
+import '../others/imports.dart';
 
-class LeccionView extends StatefulWidget {
-  @override
-  _LeccionViewState createState() => _LeccionViewState();
-}
+class LeccionDetailPage extends StatelessWidget {
+  final int leccionId;
+  final String token;
+  ApiService api = ApiService();
 
-class _LeccionViewState extends State<LeccionView> {
-  //final LeccionService _leccionService = LeccionService();
-  late Future<List<Leccion>> _lecciones;
-
-  @override
-  void initState() {
-    super.initState();
-    //_lecciones = _leccionService.fetchLecciones();
-  }
+  LeccionDetailPage({required this.leccionId, required this.token});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Lecciones'),
-      ),
-      body: FutureBuilder<List<Leccion>>(
-        future: _lecciones,
+      appBar: AppBar(title: Text('Detalles de la Lección')),
+      body: FutureBuilder(
+        future: api.getLecciones(token, leccionId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            final lecciones = snapshot.data!;
-            return ListView.builder(
-              itemCount: lecciones.length,
-              itemBuilder: (context, index) {
-                final leccion = lecciones[index];
-                return ListTile(
-                  title: Text(leccion.nombre),
-                  subtitle: Text(leccion.descripcion ?? 'Sin descripción'),
-                );
-              },
-            );
-          } else {
-            return Center(child: Text('No hay lecciones disponibles'));
           }
+
+          if (snapshot.hasError) {
+            return Center(child: Text('Error al cargar los detalles'));
+          }
+
+          if (!snapshot.hasData || snapshot.data == null) {
+            return Center(child: Text('No se encontraron detalles.'));
+          }
+
+          var leccion = snapshot.data; // Snapshot data ya no es null
+
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  leccion['nombre'] ?? 'Sin nombre',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  leccion['descripcion'] ?? 'Sin descripción',
+                  style: TextStyle(fontSize: 16),
+                ),
+                // Puedes agregar más detalles de la lección aquí
+              ],
+            ),
+          );
         },
       ),
     );

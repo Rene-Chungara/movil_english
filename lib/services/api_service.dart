@@ -43,6 +43,25 @@ class ApiService {
     }
   }
 
+  Future<List<dynamic>> getLecciones(String token, int nivel_id) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/nivel/$nivel_id/lecciones'),
+        headers: {"Authorization": "Bearer $token"},
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Error al obtener los niveles');
+      }
+    } catch (e) {
+      print(e);
+      return [];
+    }
+  }
+
+
   // Nuevo método para guardar un nivel
   Future<bool> guardarNivel(String nombre, String descripcion, String token) async {
     try {

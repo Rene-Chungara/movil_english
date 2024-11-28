@@ -11,12 +11,12 @@ class HomeView2 extends StatefulWidget {
 class _HomeView2State extends State<HomeView2> {
   final HomeController controller = HomeController();
   final ApiService _apiService = ApiService();
-  //List<dynamic> niveles = [];
-  List<Map<String, String>> niveles = [
-    {'nombre': 'Básico', 'descripcion': 'Nivel inicial'},
-    {'nombre': 'Intermedio', 'descripcion': 'Mayor dificultad'},
-    {'nombre': 'Avanzado', 'descripcion': 'Nivel experto'},
-  ];
+  List<dynamic> niveles = [];
+  // List<Map<String, String>> niveles = [
+  //   {'nombre': 'Básico', 'descripcion': 'Nivel inicial'},
+  //   {'nombre': 'Intermedio', 'descripcion': 'Mayor dificultad'},
+  //   {'nombre': 'Avanzado', 'descripcion': 'Nivel experto'},
+  // ];
   bool showDetails =
       false; // Controlador para mostrar u ocultar la lista de detalles
   List<Map<String, String>> nivelDetalles = [
@@ -33,10 +33,10 @@ class _HomeView2State extends State<HomeView2> {
 
   // Método para obtener los niveles desde la API
   void _fetchNiveles() async {
-    // final data = await _apiService.getNiveles(widget.token);
-    // setState(() {
-    //   niveles = data;
-    // });
+    final data = await _apiService.getNiveles(widget.token);
+    setState(() {
+      niveles = data;
+    });
   }
 
   @override
@@ -199,8 +199,7 @@ class _HomeView2State extends State<HomeView2> {
                               FontAwesomeIcons.puzzlePiece, 'Exámenes'),
                         ],
                       ),
-
-// Código de niveles
+                      //+++++++++++++++++++++++++++++++++++++++++
                       niveles.isNotEmpty
                           ? Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,6 +213,13 @@ class _HomeView2State extends State<HomeView2> {
                                 ),
                                 const SizedBox(height: 10),
                                 ...niveles.map((nivel) {
+                                  // Asegurarse de que nivel sea Map<String, String>
+                                  var nivelStr = {
+                                    'nombre': nivel['nombre'] ?? 'Sin nombre',
+                                    'descripcion': nivel['descripcion'] ??
+                                        'Sin descripción',
+                                  };
+
                                   return Padding(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 5.0),
@@ -222,7 +228,7 @@ class _HomeView2State extends State<HomeView2> {
                                       child: ElevatedButton(
                                         onPressed: () {
                                           // Mostrar el popup al presionar el botón
-                                          _showNivelPopup(context, nivel);
+                                          _showNivelPopup(context, nivelStr);
                                         },
                                         style: ElevatedButton.styleFrom(
                                           padding: const EdgeInsets.symmetric(
@@ -348,23 +354,20 @@ class _HomeView2State extends State<HomeView2> {
     );
   }
 
-// Función para mostrar los detalles del nivel
-  void _showNivelDetails(Map<String, String> nivel) {
-    // Esto puede abrir una nueva lista de datos (vacía por ahora)
-    // Para ahora solo se muestra un mensaje en consola
-    print('Nivel seleccionado: ${nivel['nombre']}');
-    // Puedes crear una función que despliegue más información o actualice el estado para mostrar una lista debajo.
-  }
+  
+// Función para mostrar el popup
+void _showNivelPopup(BuildContext context, Map<String, String> nivel, String token) async {
+  // Obtenemos las lecciones para el nivel seleccionado
+  int nivelId = int.parse(nivel['id'] ?? '0');  // Asegúrate de que 'id' sea el ID del nivel
+  List<dynamic> lecciones = await _apiService.getLecciones(token, nivelId);
 
-  // Función para mostrar el popup
-  void _showNivelPopup(BuildContext context, Map<String, String> nivel) {
   showDialog(
     context: context,
     builder: (context) {
       return AlertDialog(
-        backgroundColor: Colors.blueAccent.withOpacity(0.9), // Fondo con azul
+        backgroundColor: Colors.blueAccent.withOpacity(0.9),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15), // Bordes redondeados
+          borderRadius: BorderRadius.circular(15),
         ),
         title: Text(
           nivel['nombre'] ?? 'Sin nombre',
@@ -385,7 +388,38 @@ class _HomeView2State extends State<HomeView2> {
                 ),
               ),
               const SizedBox(height: 10),
-              // Aquí puedes agregar más detalles si es necesario
+              // Mostrar las lecciones como botones
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: lecciones.map<Widget>((leccion) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Aquí se navega a la nueva vista pasando el id de la lección y el token
+                        Navigator.of(context).pop(); // Cerrar el popup
+                        _navigateToLeccion(context, leccion['id'], token);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        backgroundColor: Colors.white.withOpacity(0.6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 5,
+                      ),
+                      child: Text(
+                        leccion['nombre'] ?? 'Lección sin nombre',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
             ],
           ),
         ),
@@ -408,7 +442,19 @@ class _HomeView2State extends State<HomeView2> {
     },
   );
 }
-
+// Función para navegar a la nueva vista pasando el id de la lección y el token
+void _navigateToLeccion(BuildContext context, int leccionId, String token) {
+  // Aquí debes crear la vista de la lección donde recibirás el id y el token
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => LeccionDetailPage(
+        leccionId: leccionId,
+        token: token,
+      ),
+    ),
+  );
+}
   // Método para construir botones de acción rápida con diseño amigable
   Widget _buildActionButton(IconData icon, String label) {
     return Column(

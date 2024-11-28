@@ -206,11 +206,11 @@ class HomeView extends StatelessWidget {
                       Center(
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        LeccionView()));
+                            // Navigator.push(
+                            //     context,
+                            //     MaterialPageRoute(
+                            //         builder: (context) =>
+                            //             LeccionDetailPage()));
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.orangeAccent,
