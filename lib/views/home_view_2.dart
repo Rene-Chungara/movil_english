@@ -11,6 +11,13 @@ class HomeView2 extends StatefulWidget {
 class _HomeView2State extends State<HomeView2> {
   final HomeController controller = HomeController();
   final ApiService _apiService = ApiService();
+  late EjercicioNavigator ejercicioNavigator = EjercicioNavigator(
+      token: widget.token,
+      leccId: 1,
+      progreso: 0,
+      api: ApiService(), // Asegúrate de pasar el ApiService aquí
+    );
+
   List<dynamic> niveles = [];
   // List<Map<String, String>> niveles = [
   //   {'nombre': 'Básico', 'descripcion': 'Nivel inicial'},
@@ -29,6 +36,7 @@ class _HomeView2State extends State<HomeView2> {
   void initState() {
     super.initState();
     _fetchNiveles();
+    
   }
 
   // Método para obtener los niveles desde la API
@@ -228,7 +236,7 @@ class _HomeView2State extends State<HomeView2> {
                                       child: ElevatedButton(
                                         onPressed: () {
                                           // Mostrar el popup al presionar el botón
-                                          _showNivelPopup(context, nivelStr);
+                                          //_showNivelPopup(context, nivelStr, widget.token);
                                         },
                                         style: ElevatedButton.styleFrom(
                                           padding: const EdgeInsets.symmetric(
@@ -290,7 +298,11 @@ class _HomeView2State extends State<HomeView2> {
                             // Navigator.push(
                             //     context,
                             //     MaterialPageRoute(
-                            //         builder: (context) => LeccionView()));
+                            //         builder: (context) => EjercicioXPreguntaScreen2()));
+
+                            ejercicioNavigator
+                                .navegarAlSiguienteEjercicio(context);
+
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.orangeAccent,
@@ -301,7 +313,7 @@ class _HomeView2State extends State<HomeView2> {
                                 borderRadius: BorderRadius.circular(30)),
                             elevation: 5,
                           ),
-                          child: const Text('audio a texto',
+                          child: const Text('boton de pruebas',
                               style: TextStyle(fontSize: 18)),
                         ),
                       ),
@@ -354,107 +366,109 @@ class _HomeView2State extends State<HomeView2> {
     );
   }
 
-  
 // Función para mostrar el popup
-void _showNivelPopup(BuildContext context, Map<String, String> nivel, String token) async {
-  // Obtenemos las lecciones para el nivel seleccionado
-  int nivelId = int.parse(nivel['id'] ?? '0');  // Asegúrate de que 'id' sea el ID del nivel
-  List<dynamic> lecciones = await _apiService.getLecciones(token, nivelId);
+  void _showNivelPopup(
+      BuildContext context, Map<String, String> nivel, String token) async {
+    // Obtenemos las lecciones para el nivel seleccionado
+    int nivelId = int.parse(
+        nivel['id'] ?? '0'); // Asegúrate de que 'id' sea el ID del nivel
+    List<dynamic> lecciones = await _apiService.getLecciones(token, nivelId);
 
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        backgroundColor: Colors.blueAccent.withOpacity(0.9),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        title: Text(
-          nivel['nombre'] ?? 'Sin nombre',
-          style: GoogleFonts.poppins(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.blueAccent.withOpacity(0.9),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
           ),
-        ),
-        content: SingleChildScrollView(
-          child: ListBody(
-            children: [
-              Text(
-                nivel['descripcion'] ?? 'Sin descripción',
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  color: Colors.white70,
-                ),
-              ),
-              const SizedBox(height: 10),
-              // Mostrar las lecciones como botones
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: lecciones.map<Widget>((leccion) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Aquí se navega a la nueva vista pasando el id de la lección y el token
-                        Navigator.of(context).pop(); // Cerrar el popup
-                        _navigateToLeccion(context, leccion['id'], token);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        backgroundColor: Colors.white.withOpacity(0.6),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        elevation: 5,
-                      ),
-                      child: Text(
-                        leccion['nombre'] ?? 'Lección sin nombre',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Cierra el popup
-            },
-            child: Text(
-              'Cerrar',
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+          title: Text(
+            nivel['nombre'] ?? 'Sin nombre',
+            style: GoogleFonts.poppins(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
-        ],
-      );
-    },
-  );
-}
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: [
+                Text(
+                  nivel['descripcion'] ?? 'Sin descripción',
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    color: Colors.white70,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Mostrar las lecciones como botones
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: lecciones.map<Widget>((leccion) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 5.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Aquí se navega a la nueva vista pasando el id de la lección y el token
+                          Navigator.of(context).pop(); // Cerrar el popup
+                          _navigateToLeccion(context, leccion['id'], token);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          backgroundColor: Colors.white.withOpacity(0.6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 5,
+                        ),
+                        child: Text(
+                          leccion['nombre'] ?? 'Lección sin nombre',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Cierra el popup
+              },
+              child: Text(
+                'Cerrar',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 // Función para navegar a la nueva vista pasando el id de la lección y el token
-void _navigateToLeccion(BuildContext context, int leccionId, String token) {
-  // Aquí debes crear la vista de la lección donde recibirás el id y el token
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => LeccionDetailPage(
-        leccionId: leccionId,
-        token: token,
-      ),
-    ),
-  );
-}
+  void _navigateToLeccion(BuildContext context, int leccionId, String token) {
+    // Aquí debes crear la vista de la lección donde recibirás el id y el token
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => LeccionDetailPage(
+    //       leccionId: leccionId,
+    //       token: token,
+    //     ),
+    //   ),
+    // );
+  }
   // Método para construir botones de acción rápida con diseño amigable
   Widget _buildActionButton(IconData icon, String label) {
     return Column(
