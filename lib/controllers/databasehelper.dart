@@ -4,8 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 class DataBaseHelper {
-  String serverUrl = "http://192.168.0.6:8000/api";
-  String serverUrlleccion = "http://192.168.0.6:8000/api/leccion";
+  String serverUrl = "http://18.191.150.96/api";
+  String serverUrlleccion = "http://18.191.150.96/api/leccion";
 
   var status;
 

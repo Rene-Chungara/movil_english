@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 
 class ApiService {
-  final String baseUrl = "http://192.168.0.6:8000/api"; // Cambia esta URL
+  final String baseUrl = "http://18.191.150.96/api"; // Cambia esta URL
 
 
   Future<String?> login(String email, String password) async {
