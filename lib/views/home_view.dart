@@ -10,6 +10,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 //import '../views/ejercicio/ejercicio_x_pregunta_3.dart';
 import '../views/leccion_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/src/widgets/basic.dart';
 
 
 class HomeView extends StatelessWidget {
