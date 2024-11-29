@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'views/home_view.dart';
 import 'views/login.dart';
+import 'package:flutter_gemini/flutter_gemini.dart';
 
 void main() {
+  Gemini.init(apiKey: 'api_key_edberto');
   runApp(const MyApp());
 }
 

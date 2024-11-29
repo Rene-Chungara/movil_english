@@ -18,7 +18,7 @@ class EjercicioXPreguntaScreen extends StatefulWidget {
 
 class _EjercicioXPreguntaScreenState extends State<EjercicioXPreguntaScreen> {
   late final ApiService _api;
-
+  
   String titulo = "";
   String contenido = "Aquí el contenido del ejercicio.";
   List<String> opciones = [];

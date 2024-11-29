@@ -69,20 +69,23 @@ class EjercicioNavigator {
       print("No se han cargado los ejercicios.");
       return;
     }
+    // Generar un valor aleatorio entre 1 y 3
+    Random random = Random();
+    int tipoVista = random.nextInt(3) + 1; // Esto generará 1, 2 o 3
 
     // Asegúrate de que el progreso no exceda el límite de los ejercicios
     if (progreso < ejercicios.length) {
       // Incrementamos el progreso
       progreso++;
+      tipoVista = 3;
     } else {
       progreso = 0;
+      tipoVista = 0;
       print("No hay más ejercicios");
       return;
     }
     print("progreso = ${progreso}");
-    // Generar un valor aleatorio entre 1 y 3
-    Random random = Random();
-    int tipoVista = random.nextInt(3) + 1; // Esto generará 1, 2 o 3
+
     // Usamos un switch para manejar qué vista cargar dependiendo del tipo de ejercicio
     switch (3) {
       // Aquí se puede modificar dependiendo de tu lógica de "tipoVista"
@@ -123,7 +126,7 @@ class EjercicioNavigator {
         );
         break;
       default:
-        print("Tipo de ejercicio no válido");
+        print("aqui me dirije a la ultima Vista donde ira a la pregunta con Ia si el caso tien un fallo crea el ejercicio IA");
         break;
     }
   }

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_english/services/api_service.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:flutter_english/controllers/ejercicio_navigator.dart';
+import 'package:flutter_english/others/imports.dart';
 
 class EjercicioXPreguntaScreen3 extends StatefulWidget {
   final String token;
-  int progreso;
+  final int progreso;
   final int ejercicioId;
 
   EjercicioXPreguntaScreen3({
@@ -24,129 +23,145 @@ class _EjercicioXPreguntaScreen3State extends State<EjercicioXPreguntaScreen3> {
   final SpeechToText _speechToText = SpeechToText();
   final FlutterTts _flutterTts = FlutterTts();
   final ApiService _api = ApiService();
+  EjercicioNavigator? navigator;
+
   bool _speechEnabled = false;
   bool _isListening = false;
-  bool isAnswerCorrect = false;
   String _recognizedText = "";
-  double _confidenceLevel = 0.0;
-  var ej;
-  // La pregunta asignada directamente
   String pregunta = "";
+  int leccion_id = 0;
+  double _confidenceLevel = 0.0;
 
   @override
   void initState() {
     super.initState();
-    _initializeSpeech();
+    _initializeSpeechToText();
     _initializeTextToSpeech();
-    _preguntaEjercicio();
+    _fetchPregunta();
   }
 
-  Future<void> _preguntaEjercicio() async {
+  Future<void> _fetchPregunta() async {
     try {
-      // Espera a que la llamada a la API se resuelva
-      ej = await _api.getEjercicioShow(widget.token, widget.ejercicioId);
-
-      // Verifica si se recibió una respuesta válida
-      if (ej != null && ej is Map<String, dynamic>) {
-        setState(() {
-          pregunta = ej['pregunta_texto']; // Accede al valor 'pregunta_texto'
-          ej = ej;
-        });
-      } else {
-        // Maneja el caso cuando no se recibe un resultado válido
-        print('No se pudo obtener el ejercicio');
-      }
+      var response =
+          await _api.getEjercicioShow(widget.token, widget.ejercicioId);
+      setState(() {
+        pregunta = response['pregunta_texto'] ?? "Pregunta no disponible.";
+        leccion_id = response['leccion_id'] ?? "id no disponible.";
+      });
     } catch (e) {
-      print('Error: $e');
+      print("Error al obtener la pregunta: $e");
     }
   }
 
-  // Inicializar Speech-to-Text
-  void _initializeSpeech() async {
+  void _initializeSpeechToText() async {
     _speechEnabled = await _speechToText.initialize();
-    setState(() {});
   }
 
-  // Inicializar Text-to-Speech
   void _initializeTextToSpeech() async {
     await _flutterTts.setLanguage("en-US");
     await _flutterTts.setPitch(1.0);
+    await _flutterTts.setSpeechRate(0.5);
   }
 
-  // Iniciar la escucha del Speech-to-Text
   void _startListening() async {
     if (_speechEnabled) {
-      setState(() {
-        _isListening = true;
-        _recognizedText = "";
-        isAnswerCorrect = false;
+      setState(() => _isListening = true);
+      await _speechToText.listen(onResult: (result) {
+        setState(() {
+          _recognizedText = result.recognizedWords;
+          _confidenceLevel = result.confidence;
+        });
       });
-      await _speechToText.listen(onResult: _onSpeechResult);
     }
   }
 
-  // Detener la escucha del Speech-to-Text
   void _stopListening() async {
     await _speechToText.stop();
-    setState(() {
-      _isListening = false;
-    });
+    setState(() => _isListening = false);
   }
 
-  // Resultado del Speech-to-Text
-  void _onSpeechResult(result) {
-    setState(() {
-      _recognizedText = result.recognizedWords;
-      _confidenceLevel = result.confidence;
+  void _speakQuestion() async {
+    try {
+      // Detener cualquier reproducción en curso antes de iniciar una nueva
+      await _flutterTts.stop();
 
-      // Comparar la precisión
-      double precision = _calculatePrecision(_recognizedText, pregunta);
+      if (pregunta.isNotEmpty) {
+        // Verifica que el idioma esté configurado correctamente
+        await _flutterTts.setLanguage(
+            "es-ES"); // Cambia a "es-ES" si la pregunta está en español
+        await _flutterTts.setPitch(1.0);
+        await _flutterTts.setSpeechRate(0.5);
 
-      // Actualizar la variable isAnswerCorrect con base en la precisión
-      if (precision >= 70) {
-        isAnswerCorrect = true;
+        // Iniciar la síntesis de texto a voz
+        await _flutterTts.speak(pregunta);
       } else {
-        isAnswerCorrect = false;
+        print("No hay pregunta para reproducir.");
       }
-    });
+    } catch (e) {
+      print("Error al intentar reproducir la pregunta: $e");
+    }
   }
 
-  // Función para calcular la precisión
-  double _calculatePrecision(String recognizedText, String pregunta) {
-    // Convertir ambos textos a minúsculas
-    String normalizedRecognizedText = recognizedText.toLowerCase();
-    String normalizedPregunta = pregunta.toLowerCase();
+  void _navigateToNextExercise() {
+    if (_confidenceLevel >= 0.7) {
+      // Si la precisión es del 70% o más
+      double similarity = _calculateSimilarity(
+        _recognizedText.toLowerCase().trim(),
+        pregunta.toLowerCase().trim(),
+      );
 
-    // Calcular la distancia de Levenshtein
-    int distance =
-        _levenshteinDistance(normalizedRecognizedText, normalizedPregunta);
-
-    // Calcular similitud
-    int maxLength = normalizedRecognizedText.length > normalizedPregunta.length
-        ? normalizedRecognizedText.length
-        : normalizedPregunta.length;
-
-    double similarity = (1 - (distance / maxLength)) * 100;
-
-    return similarity;
+      if (similarity >= 0.65) {
+        // Acepta respuestas con un 70% de similitud
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  "¡Correcto! La respuesta está dentro del margen permitido.")),
+        );
+        // EjercicioNavigator(
+        //   token: widget.token,
+        //   leccId: 1,
+        //   progreso: widget.progreso,
+        //   api: _api,
+        // ).navegarAlSiguienteEjercicio(context);
+      } else {
+        // Si la precisión es alta pero la similitud no alcanza el 70%
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Respuesta incorrecta. Intenta nuevamente.")),
+        );
+      }
+    } else {
+      // Si la precisión es menor al 70%
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              "Confianza insuficiente en la respuesta. Intenta hablar más claro."),
+        ),
+      );
+    }
   }
 
-  // Función de Levenshtein para calcular la distancia entre dos cadenas
-  int _levenshteinDistance(String s1, String s2) {
-    int len1 = s1.length;
-    int len2 = s2.length;
+  double _calculateSimilarity(String text1, String text2) {
+    int distance = _levenshteinDistance(text1, text2);
+    int maxLength = text1.length > text2.length ? text1.length : text2.length;
 
-    List<List<int>> dp = List.generate(
-        len1 + 1, (i) => List<int>.filled(len2 + 1, 0, growable: false),
-        growable: false);
+    if (maxLength == 0)
+      return 1.0; // Si ambas cadenas están vacías, son idénticas.
 
-    for (int i = 0; i <= len1; i++) {
-      for (int j = 0; j <= len2; j++) {
+    return 1.0 - (distance / maxLength);
+  }
+
+  int _levenshteinDistance(String s, String t) {
+    int m = s.length;
+    int n = t.length;
+    List<List<int>> dp = List.generate(m + 1, (_) => List.filled(n + 1, 0));
+
+    for (int i = 0; i <= m; i++) {
+      for (int j = 0; j <= n; j++) {
         if (i == 0) {
           dp[i][j] = j;
         } else if (j == 0) {
           dp[i][j] = i;
-        } else if (s1[i - 1] == s2[j - 1]) {
+        } else if (s[i - 1] == t[j - 1]) {
           dp[i][j] = dp[i - 1][j - 1];
         } else {
           dp[i][j] = 1 +
@@ -156,101 +171,67 @@ class _EjercicioXPreguntaScreen3State extends State<EjercicioXPreguntaScreen3> {
       }
     }
 
-    return dp[len1][len2];
+    return dp[m][n];
   }
 
-  // Leer la pregunta utilizando Text-to-Speech
-  void _speakQuestion() async {
-    await _flutterTts.speak(pregunta);
-  }
+  void _goToInstancedClass() {
+    navigator = EjercicioNavigator(
+        token: widget.token,
+        leccId: leccion_id,
+        progreso: widget.progreso,
+        api: ApiService());
 
-  // Redirigir a la siguiente pantalla si la respuesta es correcta
-  void _navigateToNextExercise() {
-  if (isAnswerCorrect) {
-    // Crear una instancia del navegador, pasando los parámetros necesarios
-    EjercicioNavigator navegator = EjercicioNavigator(
-      token: widget.token,
-      leccId: ej['leccion_id'],
-      progreso: widget.progreso,
-      api: ApiService(),
-    );
-    
-    // Navegar al siguiente ejercicio
-    navegator.navegarAlSiguienteEjercicio(context);
-  } else {
-    // Mostrar mensaje de error si la respuesta es incorrecta
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Respuesta incorrecta. Intenta de nuevo.")),
-    );
+    if (navigator != null) {
+      navigator!.navegarAlSiguienteEjercicio(context);
+    } else {
+      // Manejo del caso cuando navigator es null
+      print("El objeto navigator no está inicializado.");
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Ejercicio de Pronunciación",
-            style: TextStyle(color: Colors.white)),
+        title: Text("Ejercicio de Pronunciación"),
         backgroundColor: Colors.blueAccent,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 20.0),
-              alignment: Alignment.center,
-              child: Column(
-                children: [
-                  Text(
-                    "Pregunta:",
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    pregunta,
-                    style: TextStyle(fontSize: 22, fontStyle: FontStyle.italic),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 30),
-                  ElevatedButton(
-                    onPressed: _speakQuestion,
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent),
-                    child: Text("Escuchar la pregunta",
-                        style: TextStyle(color: Colors.white)),
-                  ),
-                ],
-              ),
+            Text("Pregunta:", style: TextStyle(fontSize: 24)),
+            Text(
+              pregunta,
+              style: TextStyle(fontSize: 20, fontStyle: FontStyle.italic),
+              textAlign: TextAlign.center,
             ),
-            SizedBox(height: 50),
+            ElevatedButton(
+              onPressed: _speakQuestion,
+              child: Text("Escuchar Pregunta"),
+            ),
+            SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: _isListening ? _stopListening : _startListening,
-              icon: Icon(_isListening ? Icons.stop : Icons.mic,
-                  color: Colors.white),
-              label: Text(_isListening ? "Detener" : "Escuchar",
-                  style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              icon: Icon(_isListening ? Icons.stop : Icons.mic),
+              label: Text(_isListening ? "Detener" : "Escuchar"),
             ),
             SizedBox(height: 20),
             Text(
               "Texto reconocido: $_recognizedText",
-              style: TextStyle(fontSize: 18),
+              style: TextStyle(fontSize: 16),
             ),
-            SizedBox(height: 10),
-            if (_recognizedText.isNotEmpty)
-              Text(
-                "Confianza: ${_confidenceLevel.toStringAsFixed(2)}",
-                style: TextStyle(fontSize: 18),
-              ),
-            SizedBox(height: 10),
-            if (_recognizedText.isNotEmpty)
-              Text(
-                "Precisión: ${_calculatePrecision(_recognizedText, pregunta).toStringAsFixed(2)}%",
-                style: TextStyle(fontSize: 18),
-              ),
-            SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: _navigateToNextExercise,
+              child: Text("Verificar Respuesta"),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _goToInstancedClass,
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              child: Text("Ir a Otra Clase"),
+            ),
           ],
         ),
       ),
