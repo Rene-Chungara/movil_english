@@ -83,10 +83,11 @@ class ApiService {
     }
   }
 
-  Future<List<dynamic>> getLeccionesByNivelId(int nivelId) async {
+  Future<List<dynamic>> getLeccionesByNivelId(String token, int nivelId) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/nivel/$nivelId/lecciones'), // Cambia por tu URL real
+        Uri.parse('$baseUrl/nivel/$nivelId/lecciones'),
+        headers: {"Authorization": "Bearer $token"},
       );
 
       if (response.statusCode == 200) {

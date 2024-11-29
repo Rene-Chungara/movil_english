@@ -3,7 +3,8 @@ import 'package:flutter_english/models/user_model.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../services/api_service.dart';
-import '../drawer_menu.dart'; // Asegúrate de tener el DrawerMenu importado
+import '../drawer_menu.dart';
+import '../lecciones/leccion_view.dart'; // Asegúrate de tener el DrawerMenu importado
 
 class NivelesView extends StatefulWidget {
   final User user;
@@ -146,8 +147,16 @@ class _NivelesViewState extends State<NivelesView> {
           color: Colors.blueAccent,
         ),
         onTap: () {
-          // Aquí puedes navegar a otra vista para mostrar detalles del nivel o lecciones
-          print('Seleccionaste el nivel: ${nivel['nombre']}');
+          // Navegar a la vista de lecciones
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => LeccionesView(
+                nivelId: nivel['id'], // Pasa el ID del nivel
+                nivelNombre: nivel['nombre'], // Pasa el nombre del nivel
+              ),
+            ),
+          );
         },
       ),
     );

@@ -2,8 +2,9 @@ class User {
   final String id;
   final String name;
   final String email;
+  final String? nivel;
 
-  User({required this.id, required this.name, required this.email});
+  User({required this.id, required this.name, required this.email, this.nivel});
 
   // Método para convertir de JSON a User
   factory User.fromJson(Map<String, dynamic> json) {
@@ -11,6 +12,7 @@ class User {
       id: json['id'],
       name: json['name'],
       email: json['email'],
+      nivel: json['nivel'],
     );
   }
 
@@ -20,6 +22,7 @@ class User {
       'id': id,
       'name': name,
       'email': email,
+      'nivel': nivel,
     };
   }
 }
