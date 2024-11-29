@@ -1,0 +1,11 @@
+<resources>
+    <!-- Información del cliente -->
+    <string name="default_web_client_id">[NO DEFINIDO]</string>
+    <string name="firebase_database_url">[NO DEFINIDO]</string>
+    <string name="gcm_defaultSenderId">876970516291</string> <!-- project_number de google-services.json -->
+    <string name="google_api_key">AIzaSyB74TMJ5HURo5vZ-GDXyNWZfdV-OGN1Gp8</string> <!-- current_key de google-services.json -->
+    <string name="google_app_id">1:876970516291:android:5bc7e95641cd16ae8b59f6</string> <!-- mobilesdk_app_id de google-services.json -->
+    <string name="google_crash_reporting_api_key">AIzaSyB74TMJ5HURo5vZ-GDXyNWZfdV-OGN1Gp8</string> <!-- current_key (igual que google_api_key) -->
+    <string name="project_id">flutterenglish-39a2d</string> <!-- project_id de google-services.json -->
+    <string name="storage_bucket">flutterenglish-39a2d.appspot.com</string> <!-- storage_bucket corregido -->
+</resources>

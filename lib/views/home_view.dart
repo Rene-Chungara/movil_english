@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_english/controllers/home_controllers.dart';
 import 'package:flutter_english/models/user_model.dart';
 import 'package:flutter_english/views/drawer_menu.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 //import '../views/ejercicio/ejercicio_x_pregunta_2.dart';
 //import '../views/ejercicio/ejercicio_x_pregunta_3.dart';
 import '../views/leccion_view.dart';
@@ -21,7 +22,8 @@ class HomeView extends StatelessWidget {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('auth_token'); // Cambia 'auth_token' por el nombre clave que usaste.
   }
-  
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
