@@ -1,29 +1,120 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_english/others/imports.dart';
 
 class EjercicioXPreguntaScreen extends StatefulWidget {
+  final String token;
+  int progreso;
+  final int ejercicio_id;
+  EjercicioXPreguntaScreen(
+      {required this.token,
+      required this.progreso,
+      required this.ejercicio_id});
+
   @override
   _EjercicioXPreguntaScreenState createState() =>
       _EjercicioXPreguntaScreenState();
 }
 
 class _EjercicioXPreguntaScreenState extends State<EjercicioXPreguntaScreen> {
-  String titulo = "Progreso: 1/10";
+  late final ApiService _api;
+  
+  String titulo = "";
   String contenido = "Aquí el contenido del ejercicio.";
-  List<String> opciones = ["Opción 1", "Opción 2", "Opción 3", "Opción 4"];
-  Map<String, String> contextoBotones = {
-    "Opción 1": "Este es el contexto de la Opción 1.",
-    "Opción 2": "Este es el contexto de la Opción 2.",
-    "Opción 3": "Este es el contexto de la Opción 3.",
-    "Opción 4": "Este es el contexto de la Opción 4.",
-  };
-
+  List<String> opciones = [];
+  Map<String, String> contextoBotones = {};
+  var ejercicio;
   String textoSeleccionado = "";
+
+  late EjercicioNavigator ejercicioNavigator;
+
+  @override
+  void initState() {
+    super.initState();
+    _api = ApiService();
+    _llenarOpciones();
+  }
+
+  void _llenarOpciones() async {
+    try {
+      dynamic ejercicio1 =
+          await _api.getEjercicioShow(widget.token, widget.ejercicio_id);
+      print("Ejercicio: $ejercicio1");
+
+      if (ejercicio1 != null &&
+          ejercicio1['opciones'] != null &&
+          ejercicio1['opciones'] is List &&
+          ejercicio1['opciones'].isNotEmpty) {
+        setState(() {
+          ejercicio = ejercicio1;
+          opciones = ejercicio1['opciones'][0].split(',');
+        });
+        print("Opciones: $opciones");
+      } else {
+        setState(() {
+          opciones = [];
+        });
+        print("No se encontró una lista válida en 'opciones'");
+      }
+
+      contextoBotones = {};
+      for (var opcion in opciones) {
+        contextoBotones[opcion] = "Texto relacionado con $opcion";
+      }
+
+      // Obtener el contenido dinámicamente
+      setState(() {
+        contenido = ejercicio1['pregunta_texto'] ?? "Contenido no disponible";
+      });
+    } catch (e) {
+      print("Error al obtener las opciones: $e");
+      setState(() {
+        opciones = [];
+      });
+    }
+  }
+
+  // Función para manejar la selección de una opción
+  void _manejarSeleccion(
+      String opcionSeleccionada, BuildContext context) async {
+    setState(() {
+      textoSeleccionado = contextoBotones[opcionSeleccionada] ?? "";
+    });
+
+    // Obtener la opción correcta desde la API
+    try {
+      //String opcionCorrecta = await _api.getSubmit(widget.token, opcionSeleccionada);
+      String opcionCorrecta = "vacio";
+      // Verificar si la opción seleccionada es la correcta
+      if (opcionSeleccionada == opcionCorrecta) {
+        print("¡La opción seleccionada es correcta!");
+
+        // Crear un objeto EjercicioNavigator y navegar al siguiente ejercicio
+        ejercicioNavigator = EjercicioNavigator(
+          token: widget.token,
+          leccId:
+              widget.ejercicio_id, // Suponiendo que leccId es el ejercicio_id
+          progreso: widget.progreso,
+          api: ApiService(),
+        );
+
+        // Navegar al siguiente ejercicio
+        ejercicioNavigator.navegarAlSiguienteEjercicio(context);
+      } else {
+        print("Opción incorrecta. Intenta nuevamente.");
+      }
+    } catch (e) {
+      print("Error al obtener la respuesta correcta: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+
+    // Modificar el título para que incluya el progreso
+    titulo = "Progreso: ${widget.progreso} / 10";
 
     return Scaffold(
       appBar: AppBar(
@@ -49,10 +140,9 @@ class _EjercicioXPreguntaScreenState extends State<EjercicioXPreguntaScreen> {
               ),
               textAlign: TextAlign.center,
             ),
-            Spacer(), // Espacio antes de los botones
+            Spacer(),
             Stack(
               children: [
-                // Fondo con gradientes en los extremos
                 Positioned.fill(
                   child: Row(
                     children: [
@@ -87,7 +177,6 @@ class _EjercicioXPreguntaScreenState extends State<EjercicioXPreguntaScreen> {
                     ],
                   ),
                 ),
-                // Contenedor de botones desplazables
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
@@ -100,7 +189,7 @@ class _EjercicioXPreguntaScreenState extends State<EjercicioXPreguntaScreen> {
                             TextButton(
                               style: TextButton.styleFrom(
                                 padding: EdgeInsets.symmetric(
-                                  vertical: screenHeight * 0.0075, // Botón más pequeño
+                                  vertical: screenHeight * 0.0075,
                                   horizontal: screenWidth * 0.02,
                                 ),
                                 backgroundColor:
@@ -110,10 +199,9 @@ class _EjercicioXPreguntaScreenState extends State<EjercicioXPreguntaScreen> {
                                 ),
                               ),
                               onPressed: () {
-                                setState(() {
-                                  textoSeleccionado =
-                                      contextoBotones[opcion] ?? "";
-                                });
+                                _manejarSeleccion(opcion, context);
+                                ejercicioNavigator
+                                    .navegarAlSiguienteEjercicio(context);
                               },
                               child: Text(
                                 opcion,
@@ -124,9 +212,7 @@ class _EjercicioXPreguntaScreenState extends State<EjercicioXPreguntaScreen> {
                                 ),
                               ),
                             ),
-                            // Texto condicional debajo de cada botón
-                            if (textoSeleccionado ==
-                                contextoBotones[opcion])
+                            if (textoSeleccionado == contextoBotones[opcion])
                               Padding(
                                 padding:
                                     EdgeInsets.only(top: screenHeight * 0.01),
@@ -147,7 +233,7 @@ class _EjercicioXPreguntaScreenState extends State<EjercicioXPreguntaScreen> {
                 ),
               ],
             ),
-            Spacer(), // Espacio después de los botones
+            Spacer(),
             Text(
               "¡Sigue así, estás progresando!",
               style: GoogleFonts.roboto(

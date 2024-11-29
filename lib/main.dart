@@ -8,6 +8,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:provider/provider.dart';
 import 'viewmodels/auth_viewmodel.dart';
+// Si vas a usar Gemini, asegúrate de inicializarlo
+// import 'package:flutter_gemini/flutter_gemini.dart';
 
 // Configuración de notificaciones locales
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -51,6 +53,9 @@ void main() async {
 
     // Inicializar el manejador de notificaciones
     NotificationHandler.initialize();
+
+    // Si necesitas usar Gemini:
+    // Gemini.init(apiKey: 'api_key_edberto');
 
     runApp(const MyApp());
   } catch (e) {
