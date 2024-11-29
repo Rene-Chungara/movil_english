@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart'; 
-import 'package:flutter_english/models/user_model.dart';  
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_english/models/user_model.dart';
+import 'home_view.dart';
+import 'lecciones/leccion_view.dart';
+import 'nivel/niveles_view.dart';  // Importamos la vista de LeccionesView
 
 class DrawerMenu extends StatelessWidget {
   final User user;
@@ -23,12 +26,42 @@ class DrawerMenu extends StatelessWidget {
           padding: EdgeInsets.zero,
           children: [
             _buildDrawerHeader(context),
-            _buildDrawerItem(context, FontAwesomeIcons.home, 'Inicio'),
-            _buildDrawerItem(context, FontAwesomeIcons.bookOpen, 'Mis Lecciones'),
-            _buildDrawerItem(context, FontAwesomeIcons.listAlt, 'Vocabulario'),
-            _buildDrawerItem(context, FontAwesomeIcons.puzzlePiece, 'Exámenes'),
+            _buildDrawerItem(context, FontAwesomeIcons.home, 'Inicio', () {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HomeView(), // Reemplaza con tu clase HomeView
+                ),
+                    (Route<dynamic> route) => false, // Elimina todas las vistas anteriores en la pila
+              );
+            }),
+            _buildDrawerItem(context, FontAwesomeIcons.bookOpen, 'Niveles', () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NivelesView(
+                    user: User(
+                      id: '0',
+                      name: 'Cargando...',
+                      email: 'cargando...'),
+                  ),
+                ),
+              );
+            }),
+
+            _buildDrawerItem(context, FontAwesomeIcons.listAlt, 'Vocabulario', () {
+              // Acción para Vocabulario
+              Navigator.pop(context);
+            }),
+            _buildDrawerItem(context, FontAwesomeIcons.puzzlePiece, 'Exámenes', () {
+              // Acción para Exámenes
+              Navigator.pop(context);
+            }),
             const Divider(),
-            _buildDrawerItem(context, FontAwesomeIcons.cog, 'Configuración'),
+            _buildDrawerItem(context, FontAwesomeIcons.cog, 'Configuración', () {
+              // Acción para Configuración
+              Navigator.pop(context);
+            }),
           ],
         ),
       ),
@@ -80,24 +113,16 @@ class DrawerMenu extends StatelessWidget {
   }
 
   // Método para construir elementos del Drawer con animación
-  Widget _buildDrawerItem(BuildContext context, IconData icon, String title) {
+  Widget _buildDrawerItem(BuildContext context, IconData icon, String title, VoidCallback onTap) {
     return ListTile(
       leading: FaIcon(icon, color: Colors.white),
       title: Text(
         title,
         style: GoogleFonts.poppins(color: Colors.white, fontSize: 16),
       ),
-      onTap: () {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$title seleccionado'),
-            duration: const Duration(milliseconds: 500),
-          ),
-        );
-      },
+      onTap: onTap,
       hoverColor: Colors.blueAccent.withOpacity(0.2),
-      tileColor: Colors.transparent,  
+      tileColor: Colors.transparent,
       splashColor: Colors.white54,
     );
   }

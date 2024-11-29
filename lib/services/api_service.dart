@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class ApiService {
-  final String baseUrl = "http://192.168.0.16:8000/api"; // Cambia esta URL
+  final String baseUrl = "http://192.168.0.6:8000/api"; // Cambia esta URL
 
 
   Future<String?> login(String email, String password) async {
@@ -15,7 +17,11 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return data['accessToken'];
+        final token = data['accessToken'];
+        // Guarda el token en SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('auth_token', token);
+        return token;
       } else {
         throw Exception('Error al iniciar sesión');
       }
@@ -25,8 +31,24 @@ class ApiService {
     }
   }
 
-  Future<List<dynamic>> getNiveles(String token) async {
+  // Recupera el token de SharedPreferences
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('auth_token'); // Cambia 'auth_token' según tu clave
+  }
+  Future<void> saveToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('auth_token', token);
+  }
+
+  // Recupera los niveles desde la API
+  Future<List<dynamic>> getNiveles() async {
     try {
+      final token = await _getToken();
+      if (token == null) {
+        throw Exception('No se encontró un token válido');
+      }
+
       final response = await http.get(
         Uri.parse('$baseUrl/nivel'),
         headers: {"Authorization": "Bearer $token"},
@@ -35,10 +57,10 @@ class ApiService {
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       } else {
-        throw Exception('Error al obtener los niveles');
+        throw Exception('Error al obtener los niveles: ${response.statusCode}');
       }
     } catch (e) {
-      print(e);
+      print('Error en getNiveles: $e');
       return [];
     }
   }
@@ -57,6 +79,24 @@ class ApiService {
       }
     } catch (e) {
       print(e);
+      return [];
+    }
+  }
+
+  Future<List<dynamic>> getLeccionesByNivelId(int nivelId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/nivel/$nivelId/lecciones'), // Cambia por tu URL real
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body); // Decodifica la respuesta JSON
+      } else {
+        print('Error al obtener las lecciones: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('Error al conectar con la API: $e');
       return [];
     }
   }

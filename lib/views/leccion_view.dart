@@ -32,16 +32,16 @@ class LeccionDetailPage extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: [/*
                 Text(
                   leccion['nombre'] ?? 'Sin nombre',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  leccion['descripcion'] ?? 'Sin descripción',
+                  //leccion['descripcion'] ?? 'Sin descripción',
                   style: TextStyle(fontSize: 16),
-                ),
+                ),*/
                 // Puedes agregar más detalles de la lección aquí
               ],
             ),

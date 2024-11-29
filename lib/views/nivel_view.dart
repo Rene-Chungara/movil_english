@@ -18,16 +18,16 @@ class _NivelesScreenState extends State<NivelesScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchNiveles();
+    //_fetchNiveles();
   }
-
+/*
   // Método para obtener los niveles desde la API
   void _fetchNiveles() async {
     final data = await _apiService.getNiveles(widget.token);
     setState(() {
       niveles = data;
     });
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +59,7 @@ class _NivelesScreenState extends State<NivelesScreen> {
           // Si la respuesta es true, significa que el nivel se guardó
           if (result == true) {
             // Actualizar la lista de niveles
-            _fetchNiveles();
+            //_fetchNiveles();
           }
         },
         child: Icon(Icons.add),

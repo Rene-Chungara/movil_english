@@ -28,16 +28,16 @@ class _HomeView2State extends State<HomeView2> {
   @override
   void initState() {
     super.initState();
-    _fetchNiveles();
+    //_fetchNiveles();
   }
 
   // Método para obtener los niveles desde la API
-  void _fetchNiveles() async {
+  /*void _fetchNiveles() async {
     final data = await _apiService.getNiveles(widget.token);
     setState(() {
       niveles = data;
     });
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -228,7 +228,7 @@ class _HomeView2State extends State<HomeView2> {
                                       child: ElevatedButton(
                                         onPressed: () {
                                           // Mostrar el popup al presionar el botón
-                                          _showNivelPopup(context, nivelStr);
+                                          //_showNivelPopup(context, nivelStr);
                                         },
                                         style: ElevatedButton.styleFrom(
                                           padding: const EdgeInsets.symmetric(
