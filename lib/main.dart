@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_english/views/speech_fluter.dart';
 import 'views/home_view.dart';
 
 void main() {
@@ -16,7 +17,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomeView(), // Usamos la vista HomeView como pantalla inicial
+      home: HomeView(), // Pantalla inicial
+      routes: {
+        '/home': (context) => HomeView(),
+        '/speech': (context) =>
+            const SpeechFlutter(), // Otra vista que quieras añadir
+        // Puedes añadir más rutas aquí
+      },
     );
   }
 }

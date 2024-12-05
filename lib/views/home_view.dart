@@ -6,7 +6,6 @@ import 'package:flutter_english/controllers/home_controllers.dart';
 import 'package:flutter_english/models/user_model.dart';
 import 'package:flutter_english/views/drawer_menu.dart';
 
-
 class HomeView extends StatelessWidget {
   final HomeController controller = HomeController();
 
@@ -26,13 +25,17 @@ class HomeView extends StatelessWidget {
             color: Colors.blueAccent.withOpacity(0.1),
             borderRadius: BorderRadius.circular(20),
           ),
-          child: Row(
-            children: const [
-              Icon(Icons.school, color: Colors.blueAccent), // Icono para la app de aprendizaje
+          child: const Row(
+            children: [
+              Icon(Icons.school,
+                  color: Colors.blueAccent), // Icono para la app de aprendizaje
               SizedBox(width: 8),
               Text(
                 '¡Bienvenido de nuevo!',
-                style: TextStyle(color: Colors.blueAccent, fontSize: 24, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: Colors.blueAccent,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -53,10 +56,15 @@ class HomeView extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasData) {
-            return DrawerMenu(user: snapshot.data!); // Pasar usuario al DrawerMenu
+            return DrawerMenu(
+                user: snapshot.data!); // Pasar usuario al DrawerMenu
           } else {
-            return DrawerMenu( // Eliminar 'const' aquí
-              user: User(id: '0', name: 'Cargando...', email: 'cargando...'), // Placeholder
+            return DrawerMenu(
+              // Eliminar 'const' aquí
+              user: User(
+                  id: '0',
+                  name: 'Cargando...',
+                  email: 'cargando...'), // Placeholder
             );
           }
         },
@@ -106,7 +114,10 @@ class HomeView extends StatelessWidget {
                       // Barra de progreso de aprendizaje con animación
                       const Text(
                         'Progreso del Curso',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
                       ),
                       const SizedBox(height: 10),
                       TweenAnimationBuilder<double>(
@@ -124,25 +135,40 @@ class HomeView extends StatelessWidget {
                       // Sección de lecciones recomendadas con diseño atractivo
                       const Text(
                         'Lecciones Recomendadas',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
                       ),
                       const SizedBox(height: 10),
-                      _buildLessonCard('Vocabulario Básico', 'Aprende las palabras esenciales', 'assets/ingles.png'),
-                      _buildLessonCard('Gramática Avanzada', 'Domina la estructura del idioma', 'assets/grammar.jpg'),
+                      _buildLessonCard(
+                          'Vocabulario Básico',
+                          'Aprende las palabras esenciales',
+                          'assets/ingles.png'),
+                      _buildLessonCard(
+                          'Gramática Avanzada',
+                          'Domina la estructura del idioma',
+                          'assets/grammar.jpg'),
                       const SizedBox(height: 30),
 
                       // Botones de acción rápida con diseño amigable
                       const Text(
                         'Explora Más',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
                       ),
                       const SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          _buildActionButton(FontAwesomeIcons.bookOpen, 'Mis Lecciones'),
-                          _buildActionButton(FontAwesomeIcons.listAlt, 'Vocabulario'),
-                          _buildActionButton(FontAwesomeIcons.puzzlePiece, 'Exámenes'),
+                          _buildActionButton(
+                              FontAwesomeIcons.bookOpen, 'Mis Lecciones'),
+                          _buildActionButton(
+                              FontAwesomeIcons.rectangleList, 'Vocabulario'),
+                          _buildActionButton(
+                              FontAwesomeIcons.puzzlePiece, 'Exámenes'),
                         ],
                       ),
 
@@ -154,13 +180,16 @@ class HomeView extends StatelessWidget {
                             // Navegar a la próxima lección
                           },
                           style: ElevatedButton.styleFrom(
-                            primary: Colors.orangeAccent,
-                            onPrimary: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                            backgroundColor: Colors.orangeAccent,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 40, vertical: 15),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30)),
                             elevation: 5,
                           ),
-                          child: const Text('Continuar Lección', style: TextStyle(fontSize: 18)),
+                          child: const Text('Continuar Lección',
+                              style: TextStyle(fontSize: 18)),
                         ),
                       ),
                     ],
@@ -195,10 +224,14 @@ class HomeView extends StatelessWidget {
           contentPadding: const EdgeInsets.all(10),
           leading: ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: Image.asset(imagePath, width: 50, height: 50, fit: BoxFit.cover),
+            child: Image.asset(imagePath,
+                width: 50, height: 50, fit: BoxFit.cover),
           ),
-          title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-          subtitle: Text(description, style: const TextStyle(color: Colors.black54)),
+          title: Text(title,
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.black)),
+          subtitle:
+              Text(description, style: const TextStyle(color: Colors.black54)),
           trailing: const Icon(Icons.arrow_forward, color: Colors.blueAccent),
           onTap: () {
             // Acción al tocar la tarjeta
@@ -219,11 +252,13 @@ class HomeView extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             shape: const CircleBorder(),
             padding: const EdgeInsets.all(20),
-            primary: Colors.white,
-            onPrimary: Colors.blueAccent,
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.blueAccent,
             elevation: 5,
           ),
-          child: FaIcon(icon, color: Colors.blueAccent, size: 30), // Usamos FaIcon para FontAwesome
+          child: FaIcon(icon,
+              color: Colors.blueAccent,
+              size: 30), // Usamos FaIcon para FontAwesome
         ),
         const SizedBox(height: 5),
         Text(label, style: const TextStyle(fontSize: 14, color: Colors.white)),

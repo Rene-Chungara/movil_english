@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart'; 
-import 'package:flutter_english/models/user_model.dart';  
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_english/models/user_model.dart';
 
 class DrawerMenu extends StatelessWidget {
   final User user;
 
-  const DrawerMenu({super.key, required this.user});  // Pasar usuario como parámetro
+  const DrawerMenu(
+      {super.key, required this.user}); // Pasar usuario como parámetro
 
   @override
   Widget build(BuildContext context) {
@@ -23,12 +24,17 @@ class DrawerMenu extends StatelessWidget {
           padding: EdgeInsets.zero,
           children: [
             _buildDrawerHeader(context),
-            _buildDrawerItem(context, FontAwesomeIcons.home, 'Inicio'),
-            _buildDrawerItem(context, FontAwesomeIcons.bookOpen, 'Mis Lecciones'),
-            _buildDrawerItem(context, FontAwesomeIcons.listAlt, 'Vocabulario'),
-            _buildDrawerItem(context, FontAwesomeIcons.puzzlePiece, 'Exámenes'),
+            _buildDrawerItem(
+                context, FontAwesomeIcons.house, 'Inicio', '/home'),
+            _buildDrawerItem(context, FontAwesomeIcons.bookOpen,
+                'Mis Lecciones', '/lessons'),
+            _buildDrawerItem(context, FontAwesomeIcons.rectangleList,
+                'Vocabulario', '/vocabulary'),
+            _buildDrawerItem(
+                context, FontAwesomeIcons.puzzlePiece, 'Exámenes', '/speech'),
             const Divider(),
-            _buildDrawerItem(context, FontAwesomeIcons.cog, 'Configuración'),
+            _buildDrawerItem(
+                context, FontAwesomeIcons.gear, 'Configuración', '/settings'),
           ],
         ),
       ),
@@ -45,16 +51,17 @@ class DrawerMenu extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
         image: DecorationImage(
-          image: AssetImage('assets/background.jpg'),
+          image: const AssetImage('assets/background.jpg'),
           fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(Colors.blue.withOpacity(0.2), BlendMode.dstATop),
+          colorFilter:
+              ColorFilter.mode(Colors.blue.withOpacity(0.2), BlendMode.dstATop),
         ),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
+          const CircleAvatar(
             radius: 30,
             backgroundImage: AssetImage('assets/user_avatar.png'),
           ),
@@ -80,7 +87,8 @@ class DrawerMenu extends StatelessWidget {
   }
 
   // Método para construir elementos del Drawer con animación
-  Widget _buildDrawerItem(BuildContext context, IconData icon, String title) {
+  Widget _buildDrawerItem(
+      BuildContext context, IconData icon, String title, String route) {
     return ListTile(
       leading: FaIcon(icon, color: Colors.white),
       title: Text(
@@ -89,15 +97,10 @@ class DrawerMenu extends StatelessWidget {
       ),
       onTap: () {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$title seleccionado'),
-            duration: const Duration(milliseconds: 500),
-          ),
-        );
+        Navigator.pushNamed(context, route);
       },
       hoverColor: Colors.blueAccent.withOpacity(0.2),
-      tileColor: Colors.transparent,  
+      tileColor: Colors.transparent,
       splashColor: Colors.white54,
     );
   }
